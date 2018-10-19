@@ -25,6 +25,9 @@ logger.setLevel(logging.DEBUG)
 def compute_num_contours(polygon=[], radius=1):
 	"""
 	Computing contours of P.
+	TODO: What to do with tiny uncovered areas left
+	by turns? For now, count it. Potentially could
+	use the area as a check for inclusion.
 
 	Params:
 		polygon: A shapely object representing the polygon
@@ -35,28 +38,23 @@ def compute_num_contours(polygon=[], radius=1):
 
 	numContours = 0
 
-	offsetDist = -0.5*radius
-
-	# TODO: Analyze the effects of join_styles
-	testPolygon = Polygon(polygon).buffer(offsetDist)
+	# Create a deep copy since we don't want to modify original polygon
+	testPolygon = Polygon(polygon.exterior, polygon.interiors)
 	while not testPolygon.is_empty:
 
 		if isinstance(testPolygon, Polygon):
 			numHoles = len(testPolygon.interiors)
 			numContours += 1 + numHoles
-			print("Single collection contours: %s"%numContours)
 
 		elif isinstance(testPolygon, MultiPolygon):
-			numHoles = 0
+			numContours += len(testPolygon)
 
 			for poly in testPolygon:
-				numHoles += len(poly.interiors)
-			numContours += len(testPolygon) + numHoles
-			print("Multi collection contours: %s"%numContours)
-			print(testPolygon)
-		
-		testPolygon = testPolygon.buffer(-radius)
+				numContours += len(poly.interiors)
 
+		# TODO: Analyze the effects of join_styles
+		testPolygon = testPolygon.buffer(-radius)
+		
 	logger.debug("Number of contours: %d"%numContours)
 
 	return numContours
@@ -96,7 +94,7 @@ if __name__ == "__main__":
 	from shapely.geometry import Polygon
 	from shapely.geometry import Point
 
-	P = Polygon([(0, 0), (1, 0), (1, 1), (2, 1), (2, 0), (3, 0), (3, 3), (2, 3), (2, 2), (1, 2), (1, 3), (0, 3)])
+	P = Polygon([(0, 0), (1, 0), (1, 1.3), (2, 1.3), (2, 0), (3, 0), (3, 3), (2, 3), (2, 1.7), (1, 1.7), (1, 3), (0, 3)])
 	p = Point((0,0))
 	#compute_chi(P, p, 1, 1, 1)
 	print(compute_num_contours(P, radius=0.1))
