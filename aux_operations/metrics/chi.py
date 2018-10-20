@@ -19,7 +19,7 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 #fileHandler.setFormatter(formatter)
 streamHandler.setFormatter(formatter)
 
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 
 def compute_num_contours(polygon=[], radius=1):
