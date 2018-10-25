@@ -20,7 +20,7 @@ streamHandler.setFormatter(formatter)
 
 logger.setLevel(logging.INFO)
 
-def chi_reoptimize(decomposition = [],
+def global_optimize(decomposition = [],
 				   cellToSiteMap = [],
 				   originalChiCosts = [],
 				   newChiCosts = [],
@@ -117,5 +117,5 @@ if __name__ == '__main__':
 		Polygon([(0.0,0.0),(5.0,0.5),(0.0,1.0)],[])
 	]
 
-	chi_reoptimize(decomposition = decomposition,
+	global_optimize(decomposition = decomposition,
 					cellToSiteMap = q)
