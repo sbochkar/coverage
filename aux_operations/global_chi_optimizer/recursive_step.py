@@ -6,7 +6,7 @@ from shapely.geometry import Point
 from shapely.geometry import Polygon
 from shapely.geometry import LineString
 
-from metrics.chi import compute_chi
+from metrics.chi import ChiMetric
 from pairwise_chi_optimizer.pairwise_reopt import compute_pairwise_optimal
 from decomposition_processing import compute_adjacency
 
@@ -32,9 +32,7 @@ def dft_recursion(decomposition=[],
 				  adjacencyMatrix=[],
 				  maxVertexIdx=0,
 				  cellToSiteMap=[],
-				  radius = 0.1,
-				  linPenalty = 1.0,
-				  angPenalty = 10*1.0/360):
+				  metric=[]):
 	"""
 	This is a recursive function that explores all pairs of cells starting with
 	one with the highest cost. The purpose is to re-optimize cuts of adjacent
@@ -48,16 +46,13 @@ def dft_recursion(decomposition=[],
 		adjacencyMatrix: A matrix representing adjacency relationships between
 						 cells in the decomposition.
 		maxVertexIdx: Index of a cell in the decomposition with the maximum cost.
+		metric: An instance of a metric class for computing the cost of a cut.
 
 	Returns:
 		True if a succseful reoptimization was performed. False otherwise.
 	"""
 
-	maxVertexCost = compute_chi(polygon = decomposition[maxVertexIdx],
-								initPos = cellToSiteMap[maxVertexIdx],
-								radius = radius,
-								linPenalty = linPenalty,
-								angPenalty = angPenalty)
+	maxVertexCost = metric.compute(polygon=decomposition[maxVertexIdx], initialPosition=cellToSiteMap[maxVertexIdx])
 
 	logger.debug("Cell %d has maximum cost of : %f"%(maxVertexIdx, maxVertexCost))
 
@@ -71,11 +66,7 @@ def dft_recursion(decomposition=[],
 
 	surroundingChiCosts = []
 	for cellIdx in surroundingCellIdxs:
-		cost = compute_chi(polygon = decomposition[cellIdx],
-						   initPos = cellToSiteMap[cellIdx],
-						   radius = radius,
-						   linPenalty = linPenalty,
-						   angPenalty = angPenalty)
+		cost = metric.compute(polygon=decomposition[cellIdx], initialPosition=cellToSiteMap[cellIdx])
 		surroundingChiCosts.append((cellIdx, cost))
 
 
@@ -110,39 +101,21 @@ def dft_recursion(decomposition=[],
 		if cellChiCost < maxVertexCost:
 			logger.debug("Attempting reopt %d and %d."%(maxVertexIdx, cellIdx))
 
-			result = compute_pairwise_optimal(polygonA = decomposition[maxVertexIdx],
-											  polygonB = decomposition[cellIdx],
-											  robotAInitPos = cellToSiteMap[maxVertexIdx],
-											  robotBInitPos = cellToSiteMap[cellIdx],
-											  nrOfSamples = 100,
-											  radius = radius,
-											  linPenalty = linPenalty,
-											  angPenalty = angPenalty)
+			result = compute_pairwise_optimal(polygonA=decomposition[maxVertexIdx],
+											  polygonB=decomposition[cellIdx],
+											  robotAInitPos=cellToSiteMap[maxVertexIdx],
+											  robotBInitPos=cellToSiteMap[cellIdx],
+											  nrOfSamples=100,
+											  metric=metric)
 
 			if result:
 				# Resolve cell-robot assignments here.
 				# This is to avoid the issue of cell assignments that
 				# don't make any sense after polygon cut.
-				chiA0 = compute_chi(polygon = result[0],
-								   	initPos = cellToSiteMap[maxVertexIdx],
-								   	radius = radius,
-								   	linPenalty = linPenalty,
-								   	angPenalty = angPenalty)
-				chiA1 = compute_chi(polygon = result[1],
-								   	initPos = cellToSiteMap[maxVertexIdx],
-								   	radius = radius,
-								   	linPenalty = linPenalty,
-								   	angPenalty = angPenalty)
-				chiB0 = compute_chi(polygon = result[0],
-								   	initPos = cellToSiteMap[cellIdx],
-								   	radius = radius,
-								   	linPenalty = linPenalty,
-								   	angPenalty = angPenalty)							   	
-				chiB1 = compute_chi(polygon = result[1],
-								   	initPos = cellToSiteMap[cellIdx],
-								   	radius = radius,
-								   	linPenalty = linPenalty,
-								   	angPenalty = angPenalty)
+				chiA0 = metric.compute(polygon=result[0], initialPosition=cellToSiteMap[maxVertexIdx])
+				chiA1 = metric.compute(polygon=result[1], initialPosition=cellToSiteMap[maxVertexIdx])
+				chiB0 = metric.compute(polygon=result[0], initialPosition=cellToSiteMap[cellIdx])
+				chiB1 = metric.compute(polygon=result[1], initialPosition=cellToSiteMap[cellIdx])
 
 				if max(chiA0, chiB1) <= max(chiA1, chiB0):
 					decomposition[maxVertexIdx], decomposition[cellIdx] = result
@@ -155,13 +128,11 @@ def dft_recursion(decomposition=[],
 				
 				return True
 			else:
-				if dft_recursion(decomposition = decomposition,
-								 adjacencyMatrix = adjacencyMatrix,
-								 maxVertexIdx = cellIdx,
-								 cellToSiteMap = cellToSiteMap,
-								 radius = radius,
-								 linPenalty = linPenalty,
-								 angPenalty = angPenalty):
+				if dft_recursion(decomposition=decomposition,
+								 adjacencyMatrix=djacencyMatrix,
+								 maxVertexIdx=cellIdx,
+								 cellToSiteMap=cellToSiteMap,
+								 metric=metric):
 					return True
 	return False
 
@@ -169,7 +140,7 @@ def dft_recursion(decomposition=[],
 if __name__ == '__main__':
 
 	print("\nSanity tests for recursive reoptimization.\n")
-
+	chi = ChiMetric(radius=0.1, linearPenalty=1.0, angularPenalty=10*1.0/360)
 
 	P = [[(0.0,0.0),(10.0,0.0),(10.0,1.0),(0.0,1.0)],[]]
 	q = [(0.0,0.0),(10.0,0.0),(10.0,1.0),(0.0,1.0)]
@@ -186,7 +157,7 @@ if __name__ == '__main__':
 		2: Point((0,1)),
 		3: Point((0,0))
 	}
-	print dft_recursion(decomposition, adjMatrix, 3, cell_to_site_map)
+	print dft_recursion(decomposition, adjMatrix, 3, cell_to_site_map, chi)
 	print decomposition
 	#result = "PASS" if not dft_recursion(P1, P2, initA, initB) else "FAIL"
 	#print("[%s] Simple two polygon test."%result)

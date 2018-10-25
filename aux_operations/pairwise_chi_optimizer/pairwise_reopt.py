@@ -7,7 +7,7 @@ from shapely.geometry import LineString
 from numpy import linspace
 from itertools import product
 
-from metrics.chi import compute_chi
+from metrics.chi import ChiMetric
 from polygon_split.polygon_split import polygon_split
 
 
@@ -73,10 +73,9 @@ def compute_pairwise_optimal(polygonA=[],
 							 polygonB=[],
 							 robotAInitPos=[],
 							 robotBInitPos=[],
+							 metric=[],
 							 nrOfSamples=100,
-							 radius = 0.1,
-							 linPenalty = 1.0,
-							 angPenalty = 10*1.0/360):
+):
 	"""
 	Takes two adjacent polygons and attempts to modify the shared edge such that
 	the metric chi is reduced.
@@ -89,10 +88,8 @@ def compute_pairwise_optimal(polygonA=[],
 		polygonB: Second polygon as Shapely objects.
 		robotAInitPos: Location of robot A as Shapely Point.
 		robotBInitPos: Location of robot B as Shapely Point.
+		metric: An instance of metric that will be used to comptue cost of cuts.
 		nrOfSamples: Samppling density to be used in the search for optimal cut.
-		raduis: Radius of the coverage implement.
-		linPenalty: Linear penalty for computing chi metric.
-		angPenalty: Angular penalty for computing chi metric.
 
 	Returns:
 		Returns the cut that minimizes the maximum chi metrix. Or [] if no such
@@ -109,6 +106,9 @@ def compute_pairwise_optimal(polygonA=[],
 		return []
 
 	if not robotAInitPos or not robotBInitPos:
+		return []
+
+	if not metric:
 		return []
 
 	try:
@@ -130,18 +130,9 @@ def compute_pairwise_optimal(polygonA=[],
 		solutionCandidate = polyExterior.interpolate(distance)
 		searchSpace.append((solutionCandidate.x, solutionCandidate.y))
 
-
 	# Record the original costs.
-	chiL = compute_chi(polygon = polygonA,
-						initPos = robotAInitPos,
-						radius = radius,
-						linPenalty = linPenalty,
-						angPenalty = angPenalty)
-	chiR = compute_chi(polygon = polygonB,
-						initPos = robotBInitPos,
-						radius = radius,
-						linPenalty = linPenalty,
-						angPenalty = angPenalty)
+	chiL = metric.compute(polygon = polygonA, initialPosition = robotAInitPos)
+	chiR = metric.compute(polygon = polygonB, initialPosition = robotBInitPos)
 
 	initMaxChi = max(chiL, chiR)
 
@@ -158,26 +149,10 @@ def compute_pairwise_optimal(polygonA=[],
 			# Resolve cell-robot assignments here.
 			# This is to avoid the issue of cell assignments that
 			# don't make any sense after polygon cut.
-			chiAP1 = compute_chi(polygon = result[0],
-							   	initPos = robotAInitPos,
-							   	radius = radius,
-							   	linPenalty = linPenalty,
-							   	angPenalty = angPenalty)
-			chiAP2 = compute_chi(polygon = result[1],
-							   	initPos = robotAInitPos,
-							   	radius = radius,
-							   	linPenalty = linPenalty,
-							   	angPenalty = angPenalty)
-			chiBP1 = compute_chi(polygon = result[0],
-							   	initPos = robotBInitPos,
-							   	radius = radius,
-							   	linPenalty = linPenalty,
-							   	angPenalty = angPenalty)							   	
-			chiBP2 = compute_chi(polygon = result[1],
-							   	initPos = robotBInitPos,
-							   	radius = radius,
-							   	linPenalty = linPenalty,
-							   	angPenalty = angPenalty)
+			chiAP1 = metric.compute(polygon = result[0], initialPosition = robotAInitPos)
+			chiAP2 = metric.compute(polygon = result[1], initialPosition = robotAInitPos)
+			chiBP1 = metric.compute(polygon = result[0], initialPosition = robotBInitPos)
+			chiBP2 = metric.compute(polygon = result[1], initialPosition = robotBInitPos)
 
 			maxChiCases = [max(chiAP1, chiBP2),
 					  	   max(chiAP2, chiBP1)]
@@ -201,20 +176,22 @@ def compute_pairwise_optimal(polygonA=[],
 
 if __name__ == '__main__':
 
+	chi = ChiMetric(radius=0.1, linearPenalty=1.0, angularPenalty=10*1.0/360)
+
 	P1 = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)], [])
 	P2 = Polygon([(1, 0), (2, 0), (2, 1), (1, 1)], [])
 	initA = Point((0, 0)) 
 	initB = Point((1, 0))
-	print(compute_pairwise_optimal(P1, P2, initA, initB))
+	print(compute_pairwise_optimal(P1, P2, initA, initB, chi))
 
 	P1 = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)], [])
 	P2 = Polygon([(1, 0), (2, 0), (2, 1), (1, 1)], [])
 	initA = Point((0, 0))
 	initB = Point((0, 0))
-	print(compute_pairwise_optimal(P1, P2, initA, initB))
+	print(compute_pairwise_optimal(P1, P2, initA, initB, chi))
 
 	P1 = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)], [])
 	P2 = Polygon([(1, 0), (2, 0), (2, 1), (1, 1)], [])
 	initA = Point((0, 0))
 	initB = Point((0, 1))
-	print(compute_pairwise_optimal(P1, P2, initA, initB))
+	print(compute_pairwise_optimal(P1, P2, initA, initB, chi))

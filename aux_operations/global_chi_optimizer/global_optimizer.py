@@ -25,9 +25,7 @@ def global_optimize(decomposition = [],
 				   originalChiCosts = [],
 				   newChiCosts = [],
 				   numIterations = 10,
-				   radius = 0.1,
-				   linPenalty = 1.0,
-				   angPenalty = 10*1.0/360):
+				   metric=[]):
 	"""
 	Performs pairwise reoptimization on the poylgon with given robot initial
 	position.
@@ -38,9 +36,7 @@ def global_optimize(decomposition = [],
 		originalChiCosts:  List for storing original costs
 		newChiCost: List for storing costs after reoptimization.
 		numIterations: The number of iterations or reoptimization cuts to make
-		radius: The radius of the coverage footprint
-		linPenalty: A parameter used in the cost computation
-		angPenalty: A parameter used in the cost computation
+		metric: An instance of metric class for computing cut cost.
 	Returns:
 		N/A
 	"""
@@ -48,11 +44,7 @@ def global_optimize(decomposition = [],
 	# Store perf stats for monitoring performance of the algorithm. 
 	chiCosts = []
 	for idx, poly in enumerate(decomposition):
-		cost = compute_chi(polygon = Polygon(decomposition[idx]),
-							initPos = cellToSiteMap[idx],
-							radius = radius,
-							linPenalty = linPenalty,
-							angPenalty = angPenalty)
+		cost = metric.compute(polygon = Polygon(decomposition[idx]), initialPosistion = cellToSiteMap[idx])
 		chiCosts.append((idx, cost))
 
 	sortedChiCosts = sorted(chiCosts, key=lambda v:v[1], reverse=True)
@@ -61,11 +53,7 @@ def global_optimize(decomposition = [],
 	for i in range(numIterations):
 		chiCosts = []
 		for idx, poly in enumerate(decomposition):
-			cost = compute_chi(polygon = decomposition[idx],
-						initPos = cellToSiteMap[idx],
-						radius = radius,
-						linPenalty = linPenalty,
-						angPenalty = angPenalty)
+			cost = metric.compute(polygon = decomposition[idx], initialPosistion = cellToSiteMap[idx])
 			chiCosts.append((idx, cost))
 		sortedChiCosts = sorted(chiCosts, key=lambda v:v[1], reverse=True)
 
@@ -77,9 +65,7 @@ def global_optimize(decomposition = [],
 								adjacencyMatrix,
 								sortedChiCosts[0][0],
 								cellToSiteMap,
-								radius,
-								linPenalty,
-								angPenalty):
+								metric)
 
 			logger.debug("Iteration: %3d/%3d: No cut was made!"%(i, numIterations))
 
@@ -87,11 +73,7 @@ def global_optimize(decomposition = [],
 		# Output new sorted costgs
 		chiCosts = []
 		for idx, poly in enumerate(decomposition):
-			cost = compute_chi(polygon = decomposition[idx],
-							   initPos = cellToSiteMap[idx],
-							   radius = radius,
-							   linPenalty = linPenalty,
-							   angPenalty = angPenalty)
+			cost = metric.compute(polygon = decomposition[idx], initialPosition = cellToSiteMap[idx])
 			chiCosts.append((idx, cost))
 		sortedChiCosts = sorted(chiCosts, key=lambda v:v[1], reverse=True)
 		newChiCosts.extend(sortedChiCosts)
@@ -101,6 +83,8 @@ def global_optimize(decomposition = [],
 if __name__ == '__main__':
 	from shapely.geometry import Polygon
 	from shapely.geometry import Point
+
+	chi = ChiMetric(radius=0.1, linearPenalty=1.0, angularPenalty=10*1.0/360)
 
 	print("\nSanity tests for the reoptimizer.\n")
 
@@ -118,4 +102,4 @@ if __name__ == '__main__':
 	]
 
 	global_optimize(decomposition = decomposition,
-					cellToSiteMap = q)
+					cellToSiteMap = q, metric=chi)

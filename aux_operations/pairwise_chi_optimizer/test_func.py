@@ -8,6 +8,7 @@ from matplotlib import pyplot
 from descartes.patch import PolygonPatch
 
 from pairwise_reopt import compute_pairwise_optimal
+from metrics.chi import ChiMetric
 
 def plot_coords(ax, ob):
     x, y = ob.xy
@@ -43,6 +44,7 @@ def plot_2_pols(ax, P1, P2, initA, initB):
 class pairwiseOptimalTest(unittest.TestCase):
 	def setUp(self):
 		self.fig = pyplot.figure(1, dpi=90)
+		self.chi = ChiMetric(radius=0.1, linearPenalty=1.0, angularPenalty=10*1.0/360)
 
 	def test_normalCase(self):
 
@@ -55,7 +57,7 @@ class pairwiseOptimalTest(unittest.TestCase):
 		
 		plot_2_pols(ax, P1, P2, initA, initB)
 
-		result = compute_pairwise_optimal(P1, P2, initA, initB)
+		result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
 		if result:
 			ax = self.fig.add_subplot(122)
 			plot_2_pols(ax, result[0], result[1], initA, initB)
@@ -72,7 +74,7 @@ class pairwiseOptimalTest(unittest.TestCase):
 
 		plot_2_pols(ax, P1, P2, initA, initB)
 
-		result = compute_pairwise_optimal(P1, P2, initA, initB)
+		result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
 		if result:
 			ax = self.fig.add_subplot(122)
 			plot_2_pols(ax, result[0], result[1], initA, initB)
@@ -89,7 +91,7 @@ class pairwiseOptimalTest(unittest.TestCase):
 
 		plot_2_pols(ax, P1, P2, initA, initB)
 
-		result = compute_pairwise_optimal(P1, P2, initA, initB)
+		result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
 		if result:
 			ax = self.fig.add_subplot(122)
 			plot_2_pols(ax, result[0], result[1], initA, initB)
@@ -106,7 +108,7 @@ class pairwiseOptimalTest(unittest.TestCase):
 
 		plot_2_pols(ax, P1, P2, initA, initB)
 
-		result = compute_pairwise_optimal(P1, P2, initA, initB)
+		result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
 		if result:
 			ax = self.fig.add_subplot(122)
 			plot_2_pols(ax, result[0], result[1], initA, initB)
@@ -123,7 +125,7 @@ class pairwiseOptimalTest(unittest.TestCase):
 
 		plot_2_pols(ax, P1, P2, initA, initB)
 
-		result = compute_pairwise_optimal(P1, P2, initA, initB)
+		result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
 		if result:
 			ax = self.fig.add_subplot(122)
 			plot_2_pols(ax, result[0], result[1], initA, initB)
@@ -140,7 +142,7 @@ class pairwiseOptimalTest(unittest.TestCase):
 
 		plot_2_pols(ax, P1, P2, initA, initB)
 
-		result = compute_pairwise_optimal(P1, P2, initA, initB)
+		result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
 		if result:
 			ax = self.fig.add_subplot(122)
 			plot_2_pols(ax, result[0], result[1], initA, initB)
@@ -157,7 +159,7 @@ class pairwiseOptimalTest(unittest.TestCase):
 
 		plot_2_pols(ax, P1, P2, initA, initB)
 
-		result = compute_pairwise_optimal(P1, P2, initA, initB)
+		result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
 		if result:
 			ax = self.fig.add_subplot(122)
 			plot_2_pols(ax, result[0], result[1], initA, initB)
@@ -174,7 +176,7 @@ class pairwiseOptimalTest(unittest.TestCase):
 
 		plot_2_pols(ax, P1, P2, initA, initB)
 
-		result = compute_pairwise_optimal(P1, P2, initA, initB)
+		result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
 		if result:
 			ax = self.fig.add_subplot(122)
 			plot_2_pols(ax, result[0], result[1], initA, initB)
