@@ -7,7 +7,7 @@ from shapely.geometry import Polygon
 from shapely.geometry import LineString
 
 from metrics.chi import ChiMetric
-from pairwise_chi_optimizer.pairwise_reopt import compute_pairwise_optimal
+from pairwise_optimizer.pairwise_reopt import compute_pairwise_optimal
 from decomposition_processing import compute_adjacency
 
 # Configure logging properties for this module
@@ -70,9 +70,7 @@ def dft_recursion(decomposition=[],
 		surroundingChiCosts.append((cellIdx, cost))
 
 
-	sortedSurroundingChiCosts = sorted(surroundingChiCosts,
-									   key = lambda v:v[1],
-									   reverse = False)
+	sortedSurroundingChiCosts = sorted(surroundingChiCosts, key=lambda v:v[1], reverse=False)
 	logger.debug("Neghbours and chi: %s"%sortedSurroundingChiCosts)
 
 	# Idea: For a given cell with maximum cost, search all the neighbors
@@ -129,7 +127,7 @@ def dft_recursion(decomposition=[],
 				return True
 			else:
 				if dft_recursion(decomposition=decomposition,
-								 adjacencyMatrix=djacencyMatrix,
+								 adjacencyMatrix=adjacencyMatrix,
 								 maxVertexIdx=cellIdx,
 								 cellToSiteMap=cellToSiteMap,
 								 metric=metric):

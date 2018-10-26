@@ -1,7 +1,7 @@
 import logging
 
 from decomposition_processing import compute_adjacency
-from metrics.chi import compute_chi
+from metrics.chi import ChiMetric
 from recursive_step import dft_recursion
 
 # Configure logging properties for this module
@@ -20,64 +20,63 @@ streamHandler.setFormatter(formatter)
 
 logger.setLevel(logging.INFO)
 
-def global_optimize(decomposition = [],
-				   cellToSiteMap = [],
-				   originalChiCosts = [],
-				   newChiCosts = [],
-				   numIterations = 10,
-				   metric=[]):
+
+def _compute_list_costs(decomposition=[], initialPositions=[], metric=[]):
 	"""
-	Performs pairwise reoptimization on the poylgon with given robot initial
-	position.
+	Function for computing costs for each cell of the decomposition
+	Args:
+		decomposition: A set of Shapely polygons representing polygon decomposition.
+		cellToSiteMap: A dict mapping cell in the polygon to the starting position of its robot.
+		metric: An instance of metric class for computing cut cost.
+	Returns:
+		sortedCosts: A list of sorted costs
+	"""
+
+	# Construct a list of costs.
+	costs = []
+	for idx, poly in enumerate(decomposition):
+		cost = metric.compute(polygon=Polygon(poly), initialPosition=initialPositions[idx])
+		costs.append((idx, cost))
+
+	sortedCosts = sorted(costs, key=lambda v:v[1], reverse=True)
+
+	return sortedCosts
+
+def global_optimize(decomposition = [],
+				    cellToSiteMap = [],
+				    numIterations = 10,
+				    metric=[]):
+	"""
+	Performs pairwise reoptimizations on the cells in the decomposition.
 
 	Args:
 		decomposition: A set of Shapely polygons representing polygon decomposition.
 		cellToSiteMap: A dict mapping cell in the polygon to the starting position of its robot.
-		originalChiCosts:  List for storing original costs
-		newChiCost: List for storing costs after reoptimization.
 		numIterations: The number of iterations or reoptimization cuts to make
 		metric: An instance of metric class for computing cut cost.
 	Returns:
-		N/A
+		decomposition: New decomposition after the original one was optimized.
+		cellToSiteMap: Modifierd cell to site map.
 	"""
-
-	# Store perf stats for monitoring performance of the algorithm. 
-	chiCosts = []
-	for idx, poly in enumerate(decomposition):
-		cost = metric.compute(polygon = Polygon(decomposition[idx]), initialPosistion = cellToSiteMap[idx])
-		chiCosts.append((idx, cost))
-
-	sortedChiCosts = sorted(chiCosts, key=lambda v:v[1], reverse=True)
-	originalChiCosts.extend(sortedChiCosts)
-
+	
 	for i in range(numIterations):
-		chiCosts = []
-		for idx, poly in enumerate(decomposition):
-			cost = metric.compute(polygon = decomposition[idx], initialPosistion = cellToSiteMap[idx])
-			chiCosts.append((idx, cost))
-		sortedChiCosts = sorted(chiCosts, key=lambda v:v[1], reverse=True)
-
-		logger.debug("Iteration: %3d/%3d: Costs: %s"%(i, numIterations, sortedChiCosts))
-
 		adjacencyMatrix = compute_adjacency(decomposition)
+		
+		sortedCosts = _compute_list_costs(decomposition=decomposition,
+											initialPositions=cellToSiteMap,
+											metric=metric)
+
+		logger.debug("Iteration: %3d/%3d: Costs: %s"%(i, numIterations, sortedCosts))
 
 		if not dft_recursion(decomposition,
 								adjacencyMatrix,
-								sortedChiCosts[0][0],
+								sortedCosts[0][0],
 								cellToSiteMap,
-								metric)
+								metric):
 
 			logger.debug("Iteration: %3d/%3d: No cut was made!"%(i, numIterations))
-
-
-		# Output new sorted costgs
-		chiCosts = []
-		for idx, poly in enumerate(decomposition):
-			cost = metric.compute(polygon = decomposition[idx], initialPosition = cellToSiteMap[idx])
-			chiCosts.append((idx, cost))
-		sortedChiCosts = sorted(chiCosts, key=lambda v:v[1], reverse=True)
-		newChiCosts.extend(sortedChiCosts)
-
+	
+	return decomposition, cellToSiteMap
 
 
 if __name__ == '__main__':
@@ -101,5 +100,4 @@ if __name__ == '__main__':
 		Polygon([(0.0,0.0),(5.0,0.5),(0.0,1.0)],[])
 	]
 
-	global_optimize(decomposition = decomposition,
-					cellToSiteMap = q, metric=chi)
+	global_optimize(decomposition=decomposition, cellToSiteMap=q, metric=chi)
