@@ -70,6 +70,25 @@ class decompositionTest(unittest.TestCase):
         self.assertEqual(len(decomp.sortedCosts), 1)
         self.assertEqual(decomp.sortedCosts[0], polyId)
 
+    def test_addOneInvalidPolygon(self):
+        decomp = Decomposition(self.chi)
+
+        polygon = Polygon([(0,0),(1,0),(1,-1),(1,1),(0,1)])
+        robotPosition = Point((0,0))
+        polyId = decomp.add_polygon(polygon=polygon, robotPosition=robotPosition)
+
+        self.assertLess(polyId, 0)
+
+        self.assertEqual(len(decomp.id2Polygon.keys()), 0)
+        
+        self.assertEqual(len(decomp.id2Position), 0)
+        
+        self.assertEqual(len(decomp.id2Cost), 0)
+        
+        self.assertEqual(len(decomp.id2Adjacent), 0)
+
+        self.assertEqual(len(decomp.sortedCosts), 0)
+
     def test_addTwoPolygon(self):
         decomp = Decomposition(self.chi)
 
@@ -99,8 +118,191 @@ class decompositionTest(unittest.TestCase):
         self.assertEqual(decomp.sortedCosts[0], polyId1)
         self.assertEqual(decomp.sortedCosts[1], polyId2)
 
+    def test_addTwoFarPolygon(self):
+        decomp = Decomposition(self.chi)
 
+        polygon1 = Polygon([(0,0),(1,0),(1,1),(0,1)])
+        robotPosition1 = Point((0,0))
+        polyId1 = decomp.add_polygon(polygon=polygon1, robotPosition=robotPosition1)
 
+        polygon2 = Polygon([(2,0),(3,0),(3,1),(2,1)])
+        robotPosition2 = Point((2,0))
+        polyId2 = decomp.add_polygon(polygon=polygon2, robotPosition=robotPosition2)
+
+        self.assertEqual(len(decomp.id2Polygon.keys()), 2)
+        self.assertEqual(decomp.id2Polygon[polyId1], polygon1)
+        self.assertEqual(decomp.id2Polygon[polyId2], polygon2)
+        
+        self.assertEqual(decomp.id2Position[polyId1], robotPosition1)
+        self.assertEqual(decomp.id2Position[polyId2], robotPosition2)
+        
+        self.assertEqual(decomp.id2Cost[polyId1], self.chi.compute(polygon=polygon1, initialPosition=robotPosition1))
+        self.assertEqual(decomp.id2Cost[polyId2], self.chi.compute(polygon=polygon2, initialPosition=robotPosition2))
+        
+        self.assertEqual(len(decomp.id2Adjacent.keys()), 2)
+        self.assertEqual(decomp.id2Adjacent[polyId1], [])
+        self.assertEqual(decomp.id2Adjacent[polyId2], [])
+
+        self.assertEqual(len(decomp.sortedCosts), 2)
+        self.assertEqual(decomp.sortedCosts[0], polyId1)
+        self.assertEqual(decomp.sortedCosts[1], polyId2)
+
+    def test_addTwoOverlappingPolygon(self):
+        decomp = Decomposition(self.chi)
+
+        polygon1 = Polygon([(0,0),(1,0),(1,1),(0,1)])
+        robotPosition1 = Point((0,0))
+        polyId1 = decomp.add_polygon(polygon=polygon1, robotPosition=robotPosition1)
+
+        polygon2 = Polygon([(0.5,0),(1.5,0),(1.5,1),(0.5,1)])
+        robotPosition2 = Point((0.5,0))
+        polyId2 = decomp.add_polygon(polygon=polygon2, robotPosition=robotPosition2)
+
+        self.assertEqual(len(decomp.id2Polygon.keys()), 2)
+        self.assertEqual(decomp.id2Polygon[polyId1], polygon1)
+        self.assertEqual(decomp.id2Polygon[polyId2], polygon2)
+        
+        self.assertEqual(decomp.id2Position[polyId1], robotPosition1)
+        self.assertEqual(decomp.id2Position[polyId2], robotPosition2)
+        
+        self.assertEqual(decomp.id2Cost[polyId1], self.chi.compute(polygon=polygon1, initialPosition=robotPosition1))
+        self.assertEqual(decomp.id2Cost[polyId2], self.chi.compute(polygon=polygon2, initialPosition=robotPosition2))
+        
+        self.assertEqual(len(decomp.id2Adjacent.keys()), 2)
+        self.assertEqual(decomp.id2Adjacent[polyId1], [polyId2])
+        self.assertEqual(decomp.id2Adjacent[polyId2], [polyId1])
+
+        self.assertEqual(len(decomp.sortedCosts), 2)
+        self.assertEqual(decomp.sortedCosts[0], polyId1)
+        self.assertEqual(decomp.sortedCosts[1], polyId2)
+
+    def test_addTwoTouchingPolygon(self):
+        decomp = Decomposition(self.chi)
+
+        polygon1 = Polygon([(0,0),(1,0),(1,1),(0,1)])
+        robotPosition1 = Point((0,0))
+        polyId1 = decomp.add_polygon(polygon=polygon1, robotPosition=robotPosition1)
+
+        polygon2 = Polygon([(1,1),(2,1),(2,2),(1,2)])
+        robotPosition2 = Point((1,1))
+        polyId2 = decomp.add_polygon(polygon=polygon2, robotPosition=robotPosition2)
+
+        self.assertEqual(len(decomp.id2Polygon.keys()), 2)
+        self.assertEqual(decomp.id2Polygon[polyId1], polygon1)
+        self.assertEqual(decomp.id2Polygon[polyId2], polygon2)
+        
+        self.assertEqual(decomp.id2Position[polyId1], robotPosition1)
+        self.assertEqual(decomp.id2Position[polyId2], robotPosition2)
+        
+        self.assertEqual(decomp.id2Cost[polyId1], self.chi.compute(polygon=polygon1, initialPosition=robotPosition1))
+        self.assertEqual(decomp.id2Cost[polyId2], self.chi.compute(polygon=polygon2, initialPosition=robotPosition2))
+        
+        self.assertEqual(len(decomp.id2Adjacent.keys()), 2)
+        self.assertEqual(decomp.id2Adjacent[polyId1], [])
+        self.assertEqual(decomp.id2Adjacent[polyId2], [])
+
+        self.assertEqual(len(decomp.sortedCosts), 2)
+        self.assertEqual(decomp.sortedCosts[0], polyId1)
+        self.assertEqual(decomp.sortedCosts[1], polyId2)
+
+    def test_addThreePolygons(self):
+        decomp = Decomposition(self.chi)
+
+        polygon1 = Polygon([(0,0),(1,0),(1,1),(0,1)])
+        robotPosition1 = Point((0,0))
+        polyId1 = decomp.add_polygon(polygon=polygon1, robotPosition=robotPosition1)
+
+        polygon2 = Polygon([(2,0),(3,0),(3,1),(2,1)])
+        robotPosition2 = Point((20,0))
+        polyId2 = decomp.add_polygon(polygon=polygon2, robotPosition=robotPosition2)
+
+        polygon3 = Polygon([(1,0),(2,0),(2,1),(1,1)])
+        robotPosition3 = Point((1,0))
+        polyId3 = decomp.add_polygon(polygon=polygon3, robotPosition=robotPosition3)        
+
+        self.assertEqual(len(decomp.id2Polygon.keys()), 3)
+        self.assertEqual(decomp.id2Polygon[polyId1], polygon1)
+        self.assertEqual(decomp.id2Polygon[polyId2], polygon2)
+        self.assertEqual(decomp.id2Polygon[polyId3], polygon3)
+        
+        self.assertEqual(decomp.id2Position[polyId1], robotPosition1)
+        self.assertEqual(decomp.id2Position[polyId2], robotPosition2)
+        self.assertEqual(decomp.id2Position[polyId3], robotPosition3)
+        
+        self.assertEqual(decomp.id2Cost[polyId1], self.chi.compute(polygon=polygon1, initialPosition=robotPosition1))
+        self.assertEqual(decomp.id2Cost[polyId2], self.chi.compute(polygon=polygon2, initialPosition=robotPosition2))
+        self.assertEqual(decomp.id2Cost[polyId3], self.chi.compute(polygon=polygon3, initialPosition=robotPosition3))
+        
+        self.assertEqual(len(decomp.id2Adjacent.keys()), 3)
+        self.assertEqual(decomp.id2Adjacent[polyId1], [polyId3])
+        self.assertEqual(decomp.id2Adjacent[polyId2], [polyId3])
+        self.assertEqual(decomp.id2Adjacent[polyId3], [polyId1, polyId2])
+
+        self.assertEqual(len(decomp.sortedCosts), 3)
+        self.assertEqual(decomp.sortedCosts[0], polyId1)
+        self.assertEqual(decomp.sortedCosts[1], polyId3)
+        self.assertEqual(decomp.sortedCosts[2], polyId2)
+
+    def test_removeFromThree(self):
+        decomp = Decomposition(self.chi)
+
+        polygon1 = Polygon([(0,0),(1,0),(1,1),(0,1)])
+        robotPosition1 = Point((0,0))
+        polyId1 = decomp.add_polygon(polygon=polygon1, robotPosition=robotPosition1)
+
+        polygon2 = Polygon([(2,0),(3,0),(3,1),(2,1)])
+        robotPosition2 = Point((20,0))
+        polyId2 = decomp.add_polygon(polygon=polygon2, robotPosition=robotPosition2)
+
+        polygon3 = Polygon([(1,0),(2,0),(2,1),(1,1)])
+        robotPosition3 = Point((1,0))
+        polyId3 = decomp.add_polygon(polygon=polygon3, robotPosition=robotPosition3)        
+
+        self.assertTrue(decomp.remove_polygon(polyId3))
+
+        self.assertEqual(len(decomp.id2Polygon.keys()), 2)
+        self.assertEqual(decomp.id2Polygon[polyId1], polygon1)
+        self.assertEqual(decomp.id2Polygon[polyId2], polygon2)
+        
+        self.assertEqual(decomp.id2Position[polyId1], robotPosition1)
+        self.assertEqual(decomp.id2Position[polyId2], robotPosition2)
+        
+        self.assertEqual(decomp.id2Cost[polyId1], self.chi.compute(polygon=polygon1, initialPosition=robotPosition1))
+        self.assertEqual(decomp.id2Cost[polyId2], self.chi.compute(polygon=polygon2, initialPosition=robotPosition2))
+        
+        self.assertEqual(len(decomp.id2Adjacent.keys()), 2)
+        self.assertEqual(decomp.id2Adjacent[polyId1], [])
+        self.assertEqual(decomp.id2Adjacent[polyId2], [])
+
+        self.assertEqual(len(decomp.sortedCosts), 2)
+        self.assertEqual(decomp.sortedCosts[0], polyId1)
+        self.assertEqual(decomp.sortedCosts[1], polyId2)
+
+    def test_addAfterRemove(self):
+        decomp = Decomposition(self.chi)
+
+        polygon1 = Polygon([(0,0),(1,0),(1,1),(0,1)])
+        robotPosition1 = Point((0,0))
+        polyId1 = decomp.add_polygon(polygon=polygon1, robotPosition=robotPosition1)
+
+        polygon2 = Polygon([(2,0),(3,0),(3,1),(2,1)])
+        robotPosition2 = Point((20,0))
+        polyId2 = decomp.add_polygon(polygon=polygon2, robotPosition=robotPosition2)
+
+        polygon3 = Polygon([(1,0),(2,0),(2,1),(1,1)])
+        robotPosition3 = Point((1,0))
+        polyId3 = decomp.add_polygon(polygon=polygon3, robotPosition=robotPosition3)
+
+        decomp.remove_polygon(polyId1)
+
+        polygon1 = Polygon([(0,0),(1,0),(1,1),(0,1)])
+        robotPosition1 = Point((0,0))
+        polyId1 = decomp.add_polygon(polygon=polygon1, robotPosition=robotPosition1)
+
+        self.assertEqual(len(decomp.id2Polygon.keys()), 3)
+        self.assertEqual(decomp.id2Polygon[polyId1], polygon1)
+        self.assertEqual(decomp.id2Polygon[polyId2], polygon2)
+        
 def suite():
     """
         Gather all the tests from this module in a test suite.

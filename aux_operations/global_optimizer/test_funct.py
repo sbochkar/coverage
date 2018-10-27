@@ -7,6 +7,7 @@ from shapely.geometry import LineString
 from matplotlib import pyplot
 from descartes.patch import PolygonPatch
 
+from decomposition.decomposition import Decomposition
 from global_optimizer import global_optimize
 from recursive_step import dft_recursion
 from metrics.chi import ChiMetric
@@ -50,15 +51,14 @@ class globalOptimizerTest(unittest.TestCase):
     def test_normalCase(self):
         ax = self.fig.add_subplot(121)
 
-        q = [Point((0.0,0.0)),
-             Point((10.0,0.0)),
-             Point((10.0,1.0)),
-             Point((0.0,1.0))]
-        decomposition = [Polygon([(0.0,0.0),(10.0,0.0), (10.0,0.5)],[]),
-                        Polygon([(0.0,0.0),(10.0,0.5),(10.0,1.0),(5.0,0.5)],[]),
-                        Polygon([(5.0,0.5),(10.0,1.0),(0.0,1.0)],[]),
-                        Polygon([(0.0,0.0),(5.0,0.5),(0.0,1.0)],[])]
-        global_optimize(decomposition=decomposition, cellToSiteMap=q, metric=self.chi)
+        decomp = Decomposition(self.chi)
+
+        polyId1 = decomp.add_polygon(polygon=Polygon([(0.0,0.0),(10.0,0.0), (10.0,0.5)],[]), robotPosition=Point((0.0,0.0)))
+        polyId2 = decomp.add_polygon(polygon=Polygon([(0.0,0.0),(10.0,0.5),(10.0,1.0),(5.0,0.5)],[]), robotPosition=Point((10.0,0.0)))
+        polyId3 = decomp.add_polygon(polygon=Polygon([(5.0,0.5),(10.0,1.0),(0.0,1.0)],[]), robotPosition=Point((10.0,1.0)))
+        polyId4 = decomp.add_polygon(polygon=Polygon([(0.0,0.0),(5.0,0.5),(0.0,1.0)],[]), robotPosition=Point((0.0,1.0)))
+             
+        global_optimize(decomposition=decomp, metric=self.chi)
 
 # Test suite for global optimizer
 class recursiveStepTest(unittest.TestCase):
@@ -69,20 +69,14 @@ class recursiveStepTest(unittest.TestCase):
     def test_normalCase(self):
         ax = self.fig.add_subplot(121)
 
-        decomposition = [
-            Polygon([(0.0,0.0),(2.5,0.0),(2.5,1.0),(0.0,1.0)],[]),
-            Polygon([(2.5,0.0),(5.0,0.0),(5.0,1.0),(2.5,1.0)],[]),
-            Polygon([(5.0,0.0),(7.5,0.0),(7.5,1.0),(5.0,1.0)],[]),
-            Polygon([(7.5,0.0),(10.0,0.0),(10.0,1.0),(7.5,1.0)],[])
-        ]
-        adjMatrix = [[False, True, False, False], [True, False, True, False], [False, True, False, True], [False, False, True, False]]
-        cell_to_site_map = {
-            0: Point((10,0)),
-            1: Point((10,1)),
-            2: Point((0,1)),
-            3: Point((0,0))
-        }
-        dft_recursion(decomposition, adjMatrix, 3, cell_to_site_map, self.chi)
+        decomp = Decomposition(self.chi)
+
+        polyId1 = decomp.add_polygon(polygon=Polygon([(0.0,0.0),(2.5,0.0),(2.5,1.0),(0.0,1.0)],[]), robotPosition=Point((10,0)))
+        polyId2 = decomp.add_polygon(polygon=Polygon([(2.5,0.0),(5.0,0.0),(5.0,1.0),(2.5,1.0)],[]), robotPosition=Point((10,1)))
+        polyId3 = decomp.add_polygon(polygon=Polygon([(5.0,0.0),(7.5,0.0),(7.5,1.0),(5.0,1.0)],[]), robotPosition=Point((0,1)))
+        polyId4 = decomp.add_polygon(polygon=Polygon([(7.5,0.0),(10.0,0.0),(10.0,1.0),(7.5,1.0)],[]), robotPosition=Point((0,0)))
+
+        dft_recursion(decomp, 3, self.chi)
 
 
 def suite():

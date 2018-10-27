@@ -1,4 +1,24 @@
+import logging
+
 from shapely.geometry import Polygon
+
+
+# Configure logging properties for this module
+logger = logging.getLogger("global_optimizer")
+#fileHandler = logging.FileHandler("logs/global_optimizer.log")
+
+streamHandler = logging.StreamHandler()
+
+#logger.addHandler(fileHandler)
+logger.addHandler(streamHandler)
+
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+#fileHandler.setFormatter(formatter)
+streamHandler.setFormatter(formatter)
+
+logger.setLevel(logging.INFO)
+
 
 class Decomposition:
     """
@@ -13,11 +33,14 @@ class Decomposition:
     6. Returns id of the polygon with the lowest cost in decomp.
     7. Returns id of the polygon with the highest cost in the decomp.
     8. Removes polygon from a decomposition.
-
+    
     Behind the scenes, does the following:
     1. Upon addition of polygon, assigns a unique id.
     2. Upon addition of polygon, computes a metric.
     3. Upon addition of polygon, computes and updates adjacency relations.
+
+    Restrictions:
+    1. Only valid and simple polygons are allowed
 
     """
 
@@ -35,7 +58,8 @@ class Decomposition:
         Add polygon to the decomposition
         """
 
-        # TODO: Check the validity of the polygon before adding it to the decomposition
+        if not polygon.is_valid or not polygon.is_simple:
+            return -1
 
         # Generate a unique id for the polygon
         polygonId = self.idCounter
@@ -60,9 +84,26 @@ class Decomposition:
     def remove_polygon(self, polygonId):
         """
         Remove polygon from the decomposition
+        Returns True if remove was succseful
         """
 
-        pass
+        if polygonId not in self.id2Polygon.keys():
+            return False
+
+        del self.id2Polygon[polygonId]
+        del self.id2Position[polygonId]
+        del self.id2Cost[polygonId]
+
+        # Remove the polygonId from the sorted list. Should only have unique values in here.
+        self.sortedCosts.remove(polygonId)
+
+        adjacentPolygonIds = self.id2Adjacent[polygonId]
+        for adjPolyId in adjacentPolygonIds:
+            self.id2Adjacent[adjPolyId].remove(polygonId)
+
+        del self.id2Adjacent[polygonId]
+
+        return True
 
     def _insert_cost(self, newPolyId):
         """
@@ -76,7 +117,7 @@ class Decomposition:
             return
 
         for idx in range(len(self.sortedCosts)):
-            if self.id2Cost[newPolyId] < self.id2Cost[idx]:
+            if self.id2Cost[newPolyId] < self.id2Cost[self.sortedCosts[idx]]:
                 self.sortedCosts.insert(idx, newPolyId)
                 return
 
