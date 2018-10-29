@@ -9,7 +9,7 @@ from shapely.geometry import LinearRing
 from shapely.ops import split
 from shapely.ops import snap
 
-SNAP_TOLLERANCE = 1e-05
+SNAP_TOLLERANCE = 1e-06
 
 # Configure logging properties for this module
 logger = logging.getLogger("polygonSplit")

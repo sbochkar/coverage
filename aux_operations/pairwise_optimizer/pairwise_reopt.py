@@ -3,6 +3,7 @@ import logging
 from shapely.geometry import Polygon
 from shapely.geometry import Point
 from shapely.geometry import LineString
+from shapely.ops import snap
 
 from numpy import linspace
 from itertools import product
@@ -11,9 +12,7 @@ from metrics.chi import ChiMetric
 from polygon_split.polygon_split import polygon_split
 
 
-RADIUS = 0.1
-LINEAR_PENALTY = 1		# Weights for the cost function
-ANGULAR_PENALTY = 10	# Weights for the cost function
+SNAP_TOLLERANCE = 1e-06
 
 
 # Configure logging properties for this module
@@ -31,42 +30,6 @@ streamHandler.setFormatter(formatter)
 #fileHandler.setFormatter(formatter)
 
 logger.setLevel(logging.DEBUG)
-
-
-def poly_shapely_to_canonical(polygon=[]):
-	"""
-	A simple helper function to convert a shapely object representing a polygon
-	intop a cononical form polygon.
-
-	Args:
-		polygon: A shapely object representing a polygon
-
-	Returns:
-		A polygon in canonical form.
-	"""
-
-	if not polygon:
-		return []
-
-	canonicalPolygon = []
-	
-	if polygon.exterior.is_ccw:
-		polyExterior = list(polygon.exterior.coords)
-	else:
-		polyExterior = list(polygon.exterior.coords)[::-1]
-
-
-	holes = []
-	for hole in polygon.interiors:
-		if hole.is_ccw:
-			holes.append(list(polygon.exterior.coords)[::-1])
-		else:
-			holes.append(list(polygon.exterior.coords))
-
-	canonicalPolygon.append(polyExterior)
-	canonicalPolygon.append(holes)
-
-	return canonicalPolygon
 
 
 def compute_pairwise_optimal(polygonA=[],
@@ -112,7 +75,9 @@ def compute_pairwise_optimal(polygonA=[],
 		return []
 
 	try:
-		polygonUnion = polygonA.union(polygonB)
+		snappedPolygon = snap(polygonB, polygonA, SNAP_TOLLERANCE)
+
+		polygonUnion = polygonA.union(snappedPolygon)
 	except:
 		return []
 
@@ -171,7 +136,13 @@ def compute_pairwise_optimal(polygonA=[],
 		return []
 
 	newPolygons = polygon_split(polygonUnion, LineString(minCandidate))
-	return newPolygons
+
+	# Snap the new polygons to the boundary of old union.
+	# This is to preserve the boundary.
+	processedPolygon1 = snap(newPolygons[0], polygonUnion, SNAP_TOLLERANCE)
+	processedPolygon2 = snap(newPolygons[1], polygonUnion, SNAP_TOLLERANCE)
+
+	return processedPolygon1, processedPolygon2
 
 
 if __name__ == '__main__':

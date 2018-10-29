@@ -46,14 +46,151 @@ class pairwiseOptimalTest(unittest.TestCase):
 		self.fig = pyplot.figure(1, dpi=90)
 		self.chi = ChiMetric(radius=0.1, linearPenalty=1.0, angularPenalty=10*1.0/360)
 
+	# def test_normalCase(self):
+
+	# 	ax = self.fig.add_subplot(121)
+
+	# 	P1 = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)], [])
+	# 	P2 = Polygon([(1, 0), (2, 0), (2, 1), (1, 1)], [])
+	# 	initA = Point((0, 0)) 
+	# 	initB = Point((2, 1))
+		
+	# 	plot_2_pols(ax, P1, P2, initA, initB)
+
+	# 	result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
+	# 	if result:
+	# 		ax = self.fig.add_subplot(122)
+	# 		plot_2_pols(ax, result[0], result[1], initA, initB)
+
+	# 	pyplot.show()
+
+	# def test_normalCase2(self):
+	# 	ax = self.fig.add_subplot(121)
+
+	# 	P1 = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)], [])
+	# 	P2 = Polygon([(1, 0), (2, 0), (2, 1), (1, 1)], [])
+	# 	initA = Point((-10, 0)) 
+	# 	initB = Point((12, 0))
+
+	# 	plot_2_pols(ax, P1, P2, initA, initB)
+
+	# 	result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
+	# 	if result:
+	# 		ax = self.fig.add_subplot(122)
+	# 		plot_2_pols(ax, result[0], result[1], initA, initB)
+
+	# 	pyplot.show()
+
+	# def test_normalCase3(self):
+	# 	ax = self.fig.add_subplot(121)
+
+	# 	P1 = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)], [])
+	# 	P2 = Polygon([(1, 0), (2, 0), (2, 1), (1, 1)], [])
+	# 	initA = Point((-10, 0)) 
+	# 	initB = Point((12, 1))
+
+	# 	plot_2_pols(ax, P1, P2, initA, initB)
+
+	# 	result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
+	# 	if result:
+	# 		ax = self.fig.add_subplot(122)
+	# 		plot_2_pols(ax, result[0], result[1], initA, initB)
+
+	# 	pyplot.show()
+
+	# def test_normalCase4(self):
+	# 	ax = self.fig.add_subplot(121)
+
+	# 	P1 = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)], [])
+	# 	P2 = Polygon([(1, 0), (2, 0), (2, 1), (1, 1)], [])
+	# 	initA = Point((-10, 0)) 
+	# 	initB = Point((2, 1))
+
+	# 	plot_2_pols(ax, P1, P2, initA, initB)
+
+	# 	result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
+	# 	if result:
+	# 		ax = self.fig.add_subplot(122)
+	# 		plot_2_pols(ax, result[0], result[1], initA, initB)
+
+	# 	pyplot.show()
+
+	# def test_normalCase5(self):
+	# 	ax = self.fig.add_subplot(121)
+
+	# 	P1 = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)], [])
+	# 	P2 = Polygon([(1, 0), (2, 0), (2, 1), (1, 1)], [])
+	# 	initA = Point((-100, 0)) 
+	# 	initB = Point((2, 1))
+
+	# 	plot_2_pols(ax, P1, P2, initA, initB)
+
+	# 	result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
+	# 	if result:
+	# 		ax = self.fig.add_subplot(122)
+	# 		plot_2_pols(ax, result[0], result[1], initA, initB)
+
+	# 	pyplot.show()
+
+	# def test_normalCase6(self):
+	# 	ax = self.fig.add_subplot(121)
+
+	# 	P1 = Polygon([(0, 0), (0.9, 0), (0.9, 1), (0, 1)], [[(0.2, 0.2), (0.8, 0.2), (0.8, 0.8), (0.2, 0.8)]])
+	# 	P2 = Polygon([(0.9, 0), (1, 0), (1, 1), (0.9, 1)], [])
+	# 	initA = Point((0, 0)) 
+	# 	initB = Point((1, 1))
+
+	# 	plot_2_pols(ax, P1, P2, initA, initB)
+
+	# 	result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
+	# 	if result:
+	# 		ax = self.fig.add_subplot(122)
+	# 		plot_2_pols(ax, result[0], result[1], initA, initB)
+
+	# 	pyplot.show()		
+
+	# def test_normalCase7(self):
+	# 	ax = self.fig.add_subplot(121)
+
+	# 	P1 = Polygon([(0, 0), (0.9, 0), (0.9, 1), (0, 1)], [[(0.2, 0.2), (0.8, 0.2), (0.8, 0.8), (0.2, 0.8)]])
+	# 	P2 = Polygon([(0.9, 0), (1, 0), (1, 1), (0.9, 1)], [])
+	# 	initA = Point((0, 0)) 
+	# 	initB = Point((0, 0))
+
+	# 	plot_2_pols(ax, P1, P2, initA, initB)
+
+	# 	result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
+	# 	if result:
+	# 		ax = self.fig.add_subplot(122)
+	# 		plot_2_pols(ax, result[0], result[1], initA, initB)
+
+	# 	pyplot.show()
+
+	# def test_normalCase8(self):
+	# 	ax = self.fig.add_subplot(121)
+
+	# 	P1 = Polygon([(0, 0), (1.9, 0), (1.9, 1), (0, 1)], [[(0.2, 0.2), (0.4, 0.2), (0.4, 0.6), (1.6, 0.6), (1.6, 0.2), (1.8, 0.2), (1.8, 0.8), (0.2, 0.8)]])
+	# 	P2 = Polygon([(1.9, 0), (2, 0), (2, 1), (1.9, 1)], [])
+	# 	initA = Point((0, 0)) 
+	# 	initB = Point((1, 0))
+
+	# 	plot_2_pols(ax, P1, P2, initA, initB)
+
+	# 	result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
+	# 	if result:
+	# 		ax = self.fig.add_subplot(122)
+	# 		plot_2_pols(ax, result[0], result[1], initA, initB)
+
+	# 	pyplot.show()
+
 	def test_normalCase(self):
 
 		ax = self.fig.add_subplot(121)
 
-		P1 = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)], [])
-		P2 = Polygon([(1, 0), (2, 0), (2, 1), (1, 1)], [])
+		P1 = Polygon([(0, 0), (1, 1), (1, 2), (0, 2)], [])
+		P2 = Polygon([(1, 1), (1, 2), (2, 2), (2, 0)], [])
 		initA = Point((0, 0)) 
-		initB = Point((2, 1))
+		initB = Point((2, 0))
 		
 		plot_2_pols(ax, P1, P2, initA, initB)
 
@@ -64,124 +201,6 @@ class pairwiseOptimalTest(unittest.TestCase):
 
 		pyplot.show()
 
-	def test_normalCase2(self):
-		ax = self.fig.add_subplot(121)
-
-		P1 = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)], [])
-		P2 = Polygon([(1, 0), (2, 0), (2, 1), (1, 1)], [])
-		initA = Point((-10, 0)) 
-		initB = Point((12, 0))
-
-		plot_2_pols(ax, P1, P2, initA, initB)
-
-		result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
-		if result:
-			ax = self.fig.add_subplot(122)
-			plot_2_pols(ax, result[0], result[1], initA, initB)
-
-		pyplot.show()
-
-	def test_normalCase3(self):
-		ax = self.fig.add_subplot(121)
-
-		P1 = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)], [])
-		P2 = Polygon([(1, 0), (2, 0), (2, 1), (1, 1)], [])
-		initA = Point((-10, 0)) 
-		initB = Point((12, 1))
-
-		plot_2_pols(ax, P1, P2, initA, initB)
-
-		result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
-		if result:
-			ax = self.fig.add_subplot(122)
-			plot_2_pols(ax, result[0], result[1], initA, initB)
-
-		pyplot.show()
-
-	def test_normalCase4(self):
-		ax = self.fig.add_subplot(121)
-
-		P1 = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)], [])
-		P2 = Polygon([(1, 0), (2, 0), (2, 1), (1, 1)], [])
-		initA = Point((-10, 0)) 
-		initB = Point((2, 1))
-
-		plot_2_pols(ax, P1, P2, initA, initB)
-
-		result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
-		if result:
-			ax = self.fig.add_subplot(122)
-			plot_2_pols(ax, result[0], result[1], initA, initB)
-
-		pyplot.show()
-
-	def test_normalCase5(self):
-		ax = self.fig.add_subplot(121)
-
-		P1 = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)], [])
-		P2 = Polygon([(1, 0), (2, 0), (2, 1), (1, 1)], [])
-		initA = Point((-100, 0)) 
-		initB = Point((2, 1))
-
-		plot_2_pols(ax, P1, P2, initA, initB)
-
-		result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
-		if result:
-			ax = self.fig.add_subplot(122)
-			plot_2_pols(ax, result[0], result[1], initA, initB)
-
-		pyplot.show()
-
-	def test_normalCase6(self):
-		ax = self.fig.add_subplot(121)
-
-		P1 = Polygon([(0, 0), (0.9, 0), (0.9, 1), (0, 1)], [[(0.2, 0.2), (0.8, 0.2), (0.8, 0.8), (0.2, 0.8)]])
-		P2 = Polygon([(0.9, 0), (1, 0), (1, 1), (0.9, 1)], [])
-		initA = Point((0, 0)) 
-		initB = Point((1, 1))
-
-		plot_2_pols(ax, P1, P2, initA, initB)
-
-		result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
-		if result:
-			ax = self.fig.add_subplot(122)
-			plot_2_pols(ax, result[0], result[1], initA, initB)
-
-		pyplot.show()		
-
-	def test_normalCase7(self):
-		ax = self.fig.add_subplot(121)
-
-		P1 = Polygon([(0, 0), (0.9, 0), (0.9, 1), (0, 1)], [[(0.2, 0.2), (0.8, 0.2), (0.8, 0.8), (0.2, 0.8)]])
-		P2 = Polygon([(0.9, 0), (1, 0), (1, 1), (0.9, 1)], [])
-		initA = Point((0, 0)) 
-		initB = Point((0, 0))
-
-		plot_2_pols(ax, P1, P2, initA, initB)
-
-		result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
-		if result:
-			ax = self.fig.add_subplot(122)
-			plot_2_pols(ax, result[0], result[1], initA, initB)
-
-		pyplot.show()
-
-	def test_normalCase8(self):
-		ax = self.fig.add_subplot(121)
-
-		P1 = Polygon([(0, 0), (1.9, 0), (1.9, 1), (0, 1)], [[(0.2, 0.2), (0.4, 0.2), (0.4, 0.6), (1.6, 0.6), (1.6, 0.2), (1.8, 0.2), (1.8, 0.8), (0.2, 0.8)]])
-		P2 = Polygon([(1.9, 0), (2, 0), (2, 1), (1.9, 1)], [])
-		initA = Point((0, 0)) 
-		initB = Point((1, 0))
-
-		plot_2_pols(ax, P1, P2, initA, initB)
-
-		result = compute_pairwise_optimal(P1, P2, initA, initB, self.chi)
-		if result:
-			ax = self.fig.add_subplot(122)
-			plot_2_pols(ax, result[0], result[1], initA, initB)
-
-		pyplot.show()
 
 def suite():
     """

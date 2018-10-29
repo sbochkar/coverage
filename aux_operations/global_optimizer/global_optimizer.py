@@ -51,11 +51,32 @@ if __name__ == '__main__':
 	chi = ChiMetric(radius=0.1, linearPenalty=1.0, angularPenalty=10*1.0/360)
 	decomp = Decomposition(chi)
 
-	decomp.add_polygon(polygon=Polygon([(0.0,0.0),(10.0,0.0), (10.0,0.5)],[]), robotPosition=Point((0.0,0.0)))
-	decomp.add_polygon(polygon=Polygon([(0.0,0.0),(10.0,0.5),(10.0,1.0),(5.0,0.5)],[]), robotPosition=Point((10.0,0.0)))
-	decomp.add_polygon(polygon=Polygon([(5.0,0.5),(10.0,1.0),(0.0,1.0)],[]), robotPosition=Point((10.0,1.0)))
-	decomp.add_polygon(polygon=Polygon([(0.0,0.0),(5.0,0.5),(0.0,1.0)],[]), robotPosition=Point((0.0,1.0)))
+	# decomp.add_polygon(polygon=Polygon([(0.0,0.0),(10.0,0.0),(10.0,0.5)],[]), robotPosition=Point((0.0,0.0)))
+	# decomp.add_polygon(polygon=Polygon([(0.0,0.0),(10.0,0.5),(10.0,1.0),(5.0,0.5)],[]), robotPosition=Point((10.0,0.0)))
+	# decomp.add_polygon(polygon=Polygon([(5.0,0.5),(10.0,1.0),(0.0,1.0)],[]), robotPosition=Point((10.0,1.0)))
+	# decomp.add_polygon(polygon=Polygon([(0.0,0.0),(5.0,0.5),(0.0,1.0)],[]), robotPosition=Point((0.0,1.0)))
+
+
+	decomp.add_polygon(polygon=Polygon([(0.0,0.0),(4.0,0.0),(4.0,4.0),(6.0,4.0),(5.0, 5.0),(0.0, 4.0)],[]), robotPosition=Point((10,0)))
+	decomp.add_polygon(polygon=Polygon([(6.0,4.0),(6.0,0.0),(10.0,0.0),(10.0,6.0),(8.0,7.0),(5.0,5.0)],[]), robotPosition=Point((10,10)))
+	decomp.add_polygon(polygon=Polygon([(7.5,8.0),(10.0,7.5),(10.0,10.0),(0.0,10.0),(0.0,5.0),(5.0,6.0)],[]), robotPosition=Point((0,10)))
+	decomp.add_polygon(polygon=Polygon([(5.0,5.0),(8.0,7.0),(7.5,8.0),(5.0,6.0)],[]), robotPosition=Point((0,0)))
+
+
+	# decomp.add_polygon(polygon=Polygon([(0,0),(10,0),(10,2),(0,2)],[]), robotPosition=Point((0,0)))
+	# decomp.add_polygon(polygon=Polygon([(0,2),(5,2),(5,4),(0,4)],[]), robotPosition=Point((0,2)))
+	# decomp.add_polygon(polygon=Polygon([(5,2),(10,2),(10,4),(5,4)],[]), robotPosition=Point((5,2)))
+
+
+	# decomp.add_polygon(polygon=Polygon([(0,0),(10,0),(10,2),(0,1)],[]), robotPosition=Point((0,0)))
+	# decomp.add_polygon(polygon=Polygon([(0,1),(5,1.5),(0,4)],[]), robotPosition=Point((0,2)))
+	# decomp.add_polygon(polygon=Polygon([(5,1.5),(10,2),(10,4),(0,4)],[]), robotPosition=Point((5,2)))
 
 	print("\nSanity tests for the reoptimizer.\n")
 
-	global_optimize(decomposition=decomp, metric=chi)
+	global_optimize(decomposition=decomp, metric=chi, numIterations=10)
+	from visuals.coverage_plot import *
+	ax = init_axis()
+	plot_decomposition(ax, decomp)
+	display()
+

@@ -24,7 +24,7 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 #fileHandler.setFormatter(formatter)
 streamHandler.setFormatter(formatter)
 
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 
 # Need to move these to the main calling function
@@ -86,7 +86,7 @@ def dft_recursion(decomposition=[],
 											  polygonB=decomposition.id2Polygon[cellIdx],
 											  robotAInitPos=decomposition.id2Position[maxCostPolygonId],
 											  robotBInitPos=decomposition.id2Position[cellIdx],
-											  nrOfSamples=100,
+											  nrOfSamples=50,
 											  metric=metric)
 
 			if result:
