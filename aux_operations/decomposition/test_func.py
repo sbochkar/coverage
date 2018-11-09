@@ -126,6 +126,7 @@ class decompositionTest(unittest.TestCase):
         polyId1 = decomp.add_polygon(polygon=polygon1, robotPosition=robotPosition1)
 
         polygon2 = Polygon([(2,0),(3,0),(3,1),(2,1)])
+
         robotPosition2 = Point((2,0))
         polyId2 = decomp.add_polygon(polygon=polygon2, robotPosition=robotPosition2)
 
@@ -302,7 +303,108 @@ class decompositionTest(unittest.TestCase):
         self.assertEqual(len(decomp.id2Polygon.keys()), 3)
         self.assertEqual(decomp.id2Polygon[polyId1], polygon1)
         self.assertEqual(decomp.id2Polygon[polyId2], polygon2)
-        
+
+    def test_addTouching(self):
+        decomp = Decomposition(self.chi)
+
+        polygon1 = Polygon([(0,0),(1,0),(1,1),(0,1)])
+        robotPosition1 = Point((0,0))
+        polyId1 = decomp.add_polygon(polygon=polygon1, robotPosition=robotPosition1)
+
+        polygon2 = Polygon([(1,1),(2,1),(2,2),(1,2)])
+        robotPosition2 = Point((20,0))
+        polyId2 = decomp.add_polygon(polygon=polygon2, robotPosition=robotPosition2)
+
+        self.assertEqual(len(decomp.id2Polygon.keys()), 2)
+        self.assertEqual(decomp.id2Polygon[polyId1], polygon1)
+        self.assertEqual(decomp.id2Polygon[polyId2], polygon2)
+        self.assertEqual(len(decomp.id2Adjacent.keys()), 2)
+        self.assertEqual(decomp.id2Adjacent[polyId1], [])
+        self.assertEqual(decomp.id2Adjacent[polyId2], [])
+
+    def test_addNonSimpleAdjacency(self):
+        decomp = Decomposition(self.chi)
+
+        polygon1 = Polygon([(0,0),(1,0),(1,1)])
+        robotPosition1 = Point((0,0))
+        polyId1 = decomp.add_polygon(polygon=polygon1, robotPosition=robotPosition1)
+
+        polygon2 = Polygon([(1,1),(0.5,1),(0.5,0.5)])
+        robotPosition2 = Point((20,0))
+        polyId2 = decomp.add_polygon(polygon=polygon2, robotPosition=robotPosition2)
+
+        polygon3 = Polygon([(0,1),(0,0),(0.5,0.5),(0.5,1)])
+        robotPosition3 = Point((20,0))
+        polyId3 = decomp.add_polygon(polygon=polygon3, robotPosition=robotPosition3)
+
+        self.assertEqual(len(decomp.id2Polygon.keys()), 3)
+        self.assertEqual(decomp.id2Polygon[polyId1], polygon1)
+        self.assertEqual(decomp.id2Polygon[polyId2], polygon2)
+        self.assertEqual(len(decomp.id2Adjacent.keys()), 3)
+        self.assertEqual(decomp.id2Adjacent[polyId1], [polyId2, polyId3])
+        self.assertEqual(decomp.id2Adjacent[polyId2], [polyId1, polyId3])
+        self.assertEqual(decomp.id2Adjacent[polyId3], [polyId1, polyId2])
+
+    def test_snapping(self):
+        decomp = Decomposition(self.chi)
+
+        polygon1 = Polygon([(0,0),(1,0),(1,1)])
+        robotPosition1 = Point((0,0))
+        polyId1 = decomp.add_polygon(polygon=polygon1, robotPosition=robotPosition1)
+
+        polygon2 = Polygon([(1,1),(0.5,1),(0.5,0.500000001)])
+        robotPosition2 = Point((20,0))
+        polyId2 = decomp.add_polygon(polygon=polygon2, robotPosition=robotPosition2)
+
+        polygon3 = Polygon([(0,1),(0,0),(0.5,0.499999999),(0.5,1)])
+        robotPosition3 = Point((20,0))
+        polyId3 = decomp.add_polygon(polygon=polygon3, robotPosition=robotPosition3)
+
+        self.assertEqual(len(decomp.id2Polygon.keys()), 3)
+        self.assertEqual(decomp.id2Polygon[polyId1], polygon1)
+        #self.assertEqual(decomp.id2Polygon[polyId2], polygon2)
+        self.assertEqual(len(decomp.id2Adjacent.keys()), 3)
+        self.assertEqual(decomp.id2Adjacent[polyId1], [polyId2, polyId3])
+        self.assertEqual(decomp.id2Adjacent[polyId2], [polyId1, polyId3])
+        self.assertEqual(decomp.id2Adjacent[polyId3], [polyId1, polyId2])
+
+    def test_snapping2(self):
+        decomp = Decomposition(self.chi)
+
+        polygon1 = Polygon([(0,0),(1,0),(1,1)])
+        robotPosition1 = Point((0,0))
+        polyId1 = decomp.add_polygon(polygon=polygon1, robotPosition=robotPosition1)
+
+        polygon2 = Polygon([(1,0.5),(2,0.5),(2,1.5),(1,1.5)])
+        robotPosition2 = Point((20,0))
+        polyId2 = decomp.add_polygon(polygon=polygon2, robotPosition=robotPosition2)
+
+        self.assertEqual(len(decomp.id2Polygon.keys()), 2)
+        self.assertEqual(decomp.id2Polygon[polyId1], polygon1)
+        self.assertEqual(decomp.id2Polygon[polyId2], polygon2)
+        self.assertEqual(len(decomp.id2Adjacent.keys()), 2)
+        self.assertEqual(decomp.id2Adjacent[polyId1], [polyId2])
+        self.assertEqual(decomp.id2Adjacent[polyId2], [polyId1])
+
+    def test_snapping3(self):
+        decomp = Decomposition(self.chi)
+
+        polygon1 = Polygon([(0,0),(0.99999,0),(0.99999,1)])
+        robotPosition1 = Point((0,0))
+        polyId1 = decomp.add_polygon(polygon=polygon1, robotPosition=robotPosition1)
+
+        polygon2 = Polygon([(1,0.5),(2,0.5),(2,1.5),(1,1.5)])
+        robotPosition2 = Point((20,0))
+        polyId2 = decomp.add_polygon(polygon=polygon2, robotPosition=robotPosition2)
+
+        self.assertEqual(len(decomp.id2Polygon.keys()), 2)
+        self.assertNotEqual(decomp.id2Polygon[polyId1], polygon1)
+        self.assertNotEqual(decomp.id2Polygon[polyId2], polygon2)
+        self.assertEqual(len(decomp.id2Adjacent.keys()), 2)
+        self.assertEqual(decomp.id2Adjacent[polyId1], [polyId2])
+        self.assertEqual(decomp.id2Adjacent[polyId2], [polyId1])
+
+
 def suite():
     """
         Gather all the tests from this module in a test suite.
